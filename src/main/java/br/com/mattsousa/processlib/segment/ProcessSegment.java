@@ -8,46 +8,93 @@ import java.util.Collection;
 import java.util.HashMap;
 
 /**
- *
- * @author mattsousa
+ * This class can divide a {@link Collection} in many parts and process
+ * these parts once at a time and it also can process between these 
+ * sub-lists. It is possible to add some objects as arguments.
+ * 
+ * @author Matheus Pinheiro de Sousa
+ * @version 1.0
+ * @since 2020-01-28
  */
 public class ProcessSegment {
 
     private HashMap<String, Object> args;
 
+    /**
+     * Construct and initialize all members
+     */    
     public ProcessSegment() {
         args = new HashMap<>();
     }
     
+    /**
+     * Adds a new argument associated with a key 
+     * The argument will be replaced if this key already exists
+     * 
+     * @param key key with which the specified value is to be associated
+     * @param value value to be associated with the specified key
+     * @return the previous value associated with key, or null if there was no mapping for key. (A null return can also indicate that the map previously associated null with key)
+     */
     public Object addArgs(String key, Object value){
         return args.put(key, value);
     }
     
+    
+    /**
+     * Removes a argument associated with a key
+     * 
+     * @param key key whose mapping is to be removed from the map
+     * @return the previous value associated with key, or null if there was no mapping for key. (A null return can also indicate that the map previously associated null with key.)
+     */
     public Object removeArgs(String key){
         return args.remove(key);
     }
 
+    /**
+     * This method breaks up the {@code collection} in many sub-lists 
+     * with {@code subListSize} size or less. Each one of these sub-lists will be
+     * processed.
+     * 
+     * @param collection A Collection of objects to be processed
+     * @param subListSize Size of the sub-list
+     * @param process Interface that will repeat for each sub-list generated
+     * @throws NonPositivePartException if the {@code partSize} is less or equals 0
+     */
+    
     public void segment(
             Collection collection
-            , int partSize
+            , int subListSize
             , ProcessInterface process) {
         int start = 0;
         int size = collection.size();
-        ArrayList<ArrayList> listObjects = partCollection(collection, start, size, partSize);
+        ArrayList<ArrayList> listObjects = partCollection(collection, start, size, subListSize);
         
         for (ArrayList sublist : listObjects) {
             process.run(sublist.toArray(), args);
         }
     }
     
+    
+    /**
+     * This method breaks up the {@code collection} in many sub-lists 
+     * with {@code subListSize} size or less. Each one of these sub-lists will be
+     * processed in a {@code process} interface. a {@code intervalProcess} interface 
+     * will run during a interval of process between two sub-lists.
+     * 
+     * @param collection A Collection of objects to be processed
+     * @param subListSize Size of the sub-list
+     * @param process Interface that will repeat for each sub-list generated
+     * @param intervalProcess Interface that will repeat between every {@code process} interval
+     * @throws NonPositivePartException if the {@code partSize} is less or equals 0
+     */
     public void segment(
             Collection collection
-            , int partSize
+            , int subListSize
             , ProcessInterface process
             , ProcessIntervalInterface intervalProcess) {
         int start = 0;
         int size = collection.size();
-        ArrayList<ArrayList> listObjects = partCollection(collection, start, size, partSize);
+        ArrayList<ArrayList> listObjects = partCollection(collection, start, size, subListSize);
         Object[] beforeList = listObjects.get(0).toArray();
         for (ArrayList sublist : listObjects) {
             if(!beforeList.equals(sublist)){
@@ -63,10 +110,10 @@ public class ProcessSegment {
             Collection collection
             , int start
             , int size
-            , int partSize
+            , int subListSize
             , ProcessInterface process){
         
-        ArrayList<ArrayList> listObjects = partCollection(collection, start, size, partSize);
+        ArrayList<ArrayList> listObjects = partCollection(collection, start, size, subListSize);
 
         for (ArrayList sublist : listObjects) {
             process.run(sublist.toArray(), args);
