@@ -128,7 +128,7 @@ public class ProcessSegment {
         processPart(listObjects, intervalProcess, process);
     }
 
-    private ArrayList<ArrayList> partCollection(Collection list, int start, int size, int partSize) {
+    protected ArrayList<ArrayList> partCollection(Collection list, int start, int size, int partSize) {
         ArrayList<ArrayList> result = new ArrayList<>();
 
         if (partSize <= 0) {
@@ -162,7 +162,7 @@ public class ProcessSegment {
         return result;
     }
 
-    private void processPart(ArrayList<ArrayList> listObjects, ProcessIntervalInterface intervalProcess, ProcessInterface process) {
+    protected void processPart(ArrayList<ArrayList> listObjects, ProcessIntervalInterface intervalProcess, ProcessInterface process) {
         Object[] beforeList = listObjects.get(0).toArray();
 
         for (ArrayList sublist : listObjects) {
@@ -178,7 +178,7 @@ public class ProcessSegment {
         }
     }
 
-    private void processPart(ArrayList<ArrayList> listObjects, ProcessInterface process) {
+    protected void processPart(ArrayList<ArrayList> listObjects, ProcessInterface process) {
         for (ArrayList sublist : listObjects) {
             process.run(sublist.toArray(), args);
         }
