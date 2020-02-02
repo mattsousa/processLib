@@ -10,17 +10,24 @@ import java.util.HashMap;
 
 /**
  * This class can divide a {@link Collection} in many parts and process these
- * parts once at a time and it also can process between these sub-lists. It is
- * possible to add some objects as arguments.
+ * parts once at a time. It also can process between these sub-lists. It is
+ * possible to pass some objects as arguments when processing the sub-lists.
  *
  * @author Matheus Pinheiro de Sousa
  * @version 1.0
  * @since 2020-01-28
  */
 public class ProcessSegment {
-
+    
+    //****************************************
+    // Fields
+    //****************************************
     private HashMap<String, Object> args;
 
+    
+    //****************************************
+    // Constructors
+    //****************************************
     /**
      * Construct and initialize all members
      */
@@ -29,105 +36,17 @@ public class ProcessSegment {
     }
 
     /**
-     * Adds a new argument associated with a key The argument will be replaced
-     * if this key already exists
-     *
-     * @param key key with which the specified value is to be associated
-     * @param value value to be associated with the specified key
-     * @return the previous value associated with key, or null if there was no
-     * mapping for key. (A null return can also indicate that the map previously
-     * associated null with key)
+     * Construct and initialize the arguments passing a {@link HashMap}
+     * @param args map that contains all arguments
      */
-    public Object addArgs(String key, Object value) {
-        return args.put(key, value);
+    public ProcessSegment(HashMap<String, Object> args) {
+        this.args = args;
     }
-
-    /**
-     * Removes a argument associated with a key
-     *
-     * @param key key whose mapping is to be removed from the map
-     * @return the previous value associated with key, or null if there was no
-     * mapping for key. (A null return can also indicate that the map previously
-     * associated null with key.)
-     */
-    public Object removeArgs(String key) {
-        return args.remove(key);
-    }
-
-    /**
-     * This method breaks up the {@code collection} in many sub-lists with
-     * {@code subListSize} size or less. Each one of these sub-lists will be
-     * processed.
-     *
-     * @param collection A Collection of objects to be processed
-     * @param subListSize Size of the sub-list
-     * @param process Interface that will repeat for each sub-list generated
-     * @throws NonPositivePartException if the {@code partSize} is less or
-     * equals 0
-     */
-    public void segment(
-            Collection collection,
-            int subListSize,
-            ProcessInterface process) {
-        int start = 0;
-        int size = collection.size();
-        ArrayList<ArrayList> listObjects = partCollection(collection, start, size, subListSize);
-
-        processPart(listObjects, process);
-    }
-
-    public void segment(
-            Collection collection,
-            int start,
-            int size,
-            int subListSize,
-            ProcessInterface process) {
-
-        ArrayList<ArrayList> listObjects = partCollection(collection, start, size, subListSize);
-
-        processPart(listObjects, process);
-    }
-
-    /**
-     * This method breaks up the {@code collection} in many sub-lists with
-     * {@code subListSize} size or less. Each one of these sub-lists will be
-     * processed in a {@code process} interface. a {@code intervalProcess}
-     * interface will run during a interval of process between two sub-lists.
-     *
-     * @param collection A Collection of objects to be processed
-     * @param subListSize Size of the sub-list
-     * @param process Interface that will repeat for each sub-list generated
-     * @param intervalProcess Interface that will repeat between every
-     * {@code process} interval
-     * @throws NonPositivePartException if the {@code partSize} is less or
-     * equals 0
-     */
-    public void segment(
-            Collection collection,
-            int subListSize,
-            ProcessInterface process,
-            ProcessIntervalInterface intervalProcess) {
-        int start = 0;
-        int size = collection.size();
-
-        ArrayList<ArrayList> listObjects = partCollection(collection, start, size, subListSize);
-
-        processPart(listObjects, intervalProcess, process);
-    }
-
-    public void segment(
-            Collection collection,
-            int start,
-            int size,
-            int subListSize,
-            ProcessInterface process,
-            ProcessIntervalInterface intervalProcess) {
-
-        ArrayList<ArrayList> listObjects = partCollection(collection, start, size, subListSize);
-
-        processPart(listObjects, intervalProcess, process);
-    }
-
+    
+    //****************************************
+    // Protected methods
+    //****************************************
+    
     protected ArrayList<ArrayList> partCollection(Collection list, int start, int size, int partSize) {
         ArrayList<ArrayList> result = new ArrayList<>();
 
@@ -182,5 +101,152 @@ public class ProcessSegment {
         for (ArrayList sublist : listObjects) {
             process.run(sublist.toArray(), args);
         }
+    }
+    
+    //****************************************
+    // Public methods
+    //****************************************
+    
+    /**
+     * Adds a new argument associated with a key The argument will be replaced
+     * if this key already exists
+     *
+     * @param key key with which the specified value is to be associated
+     * @param value value to be associated with the specified key
+     * @return the previous value associated with key, or null if there was no
+     * mapping for key. (A null return can also indicate that the map previously
+     * associated null with key)
+     */
+    public Object addArgs(String key, Object value) {
+        return args.put(key, value);
+    }
+
+    /**
+     * Removes a argument associated with a key
+     *
+     * @param key key whose mapping is to be removed from the map
+     * @return the previous value associated with key, or null if there was no
+     * mapping for key. (A null return can also indicate that the map previously
+     * associated null with key.)
+     */
+    public Object removeArgs(String key) {
+        return args.remove(key);
+    }
+
+    /**
+     * This method breaks up the collection in many sub-lists with
+     * subListSize size or less. Items in the sub-list will be processed 
+     * according to their position on the collection.
+     *
+     * @param collection A Collection of objects to be processed
+     * @param subListSize Size of the sub-list
+     * @param process Interface that will repeat for each sub-list generated
+     * @throws NonPositivePartException if the subListSize is less or
+     * equals 0
+     */
+    public void segment(
+            Collection collection,
+            int subListSize,
+            ProcessInterface process) {
+        int start = 0;
+        int size = collection.size();
+        ArrayList<ArrayList> listObjects = partCollection(collection, start, size, subListSize);
+
+        processPart(listObjects, process);
+    }
+    
+    /**
+     * This method breaks up the collection in many sub-lists with
+     * subListSize size or less. Only the positions between in the range 
+     * (pos >= start && pos <= (start+size)) will be partitioned. Items in the
+     * sub-list will be processed according to their position on the collection.
+     *
+     * @param collection A Collection of objects to be processed
+     * @param start First position of collection to process
+     * @param size Number of positions to process from start position
+     * @param subListSize size of the sub-list
+     * @param process Interface that will repeat for each sub-list generated
+     * @throws NonPositivePartException if the subListSize is less or
+     * equals 0
+     * @throws IndexOutOfBoundsException if the start or size is out of range
+     * (start < 0 || start >= collection.size())
+     * 
+     */
+    public void segment(
+            Collection collection,
+            int start,
+            int size,
+            int subListSize,
+            ProcessInterface process) {
+
+        ArrayList<ArrayList> listObjects = partCollection(
+                collection
+                , start
+                , size
+                , subListSize
+        );
+
+        processPart(listObjects, process);
+    }
+
+    /**
+     * This method breaks up the collection in many sub-lists with
+     * subListSize size or less. Items in the sub-list will be processed 
+     * according to their position on the collection. An intervalProcess
+     * interface will run during a gap of process between two sub-lists.
+     *
+     * @param collection A Collection of objects to be processed
+     * @param subListSize Size of the sub-list
+     * @param process Interface that will repeat for each sub-list generated
+     * @param intervalProcess Interface that will repeat between every
+     * process interval
+     * @throws NonPositivePartException if the {@code partSize} is less or
+     * equals 0
+     */
+    public void segment(
+            Collection collection,
+            int subListSize,
+            ProcessInterface process,
+            ProcessIntervalInterface intervalProcess) {
+        int start = 0;
+        int size = collection.size();
+
+        ArrayList<ArrayList> listObjects = partCollection(collection, start, size, subListSize);
+
+        processPart(listObjects, intervalProcess, process);
+    }
+
+    /**
+     * This method breaks up the collection in many sub-lists with
+     * subListSize size or less. Only the positions between in the range 
+     * (pos >= start && pos <= (start+size)) will be partitioned. Items in the
+     * sub-list will be processed according to their position on the collection.
+     * An intervalProcess interface will run during a gap of process 
+     * between two sub-lists.
+     *
+     * @param collection A Collection of objects to be processed
+     * @param start First position of collection to process
+     * @param size Number of positions to process from start position
+     * @param subListSize size of the sub-list
+     * @param process Interface that will repeat for each sub-list generated
+     * @param intervalProcess Interface that will repeat between every
+     * process interval
+     * @throws NonPositivePartException if the subListSize is less or
+     * equals 0
+     * @throws IndexOutOfBoundsException if the start or size is out of range
+     * (start < 0 || start >= collection.size())
+     * 
+     */
+    public void segment(
+            Collection collection,
+            int start,
+            int size,
+            int subListSize,
+            ProcessInterface process,
+            ProcessIntervalInterface intervalProcess) {
+
+        ArrayList<ArrayList> listObjects = partCollection(collection, start, size, subListSize);
+
+        processPart(listObjects, intervalProcess, process);
     }
 }
